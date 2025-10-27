@@ -13,7 +13,7 @@ fn main() {
             let is_file_exist = is_file_exist(trimmed_input);
             if is_file_exist { 
                 println!("File {} exists", input);
-                file_handler::handle_file(input)
+                file_handler::handle_file(input).expect("TODO: panic message");
             }
             else { println!("File doesn't exist") }
         }
