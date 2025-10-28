@@ -1,7 +1,7 @@
 mod file_handler;
 
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 fn main() {
     let mut input = String::new();
@@ -13,7 +13,9 @@ fn main() {
             let is_file_exist = is_file_exist(trimmed_input);
             if is_file_exist { 
                 println!("File {} exists", input);
-                file_handler::handle_file(input).expect("TODO: panic message");
+                let path = normalize_path(&input);
+                let hm = file_handler::handle_file(&path).expect("TODO: panic message");
+                println!("{:?}", hm);
             }
             else { println!("File doesn't exist") }
         }
@@ -21,7 +23,14 @@ fn main() {
             println!("Uncorrected path: {}", error)
         }
     }
-    
+}
+fn normalize_path(raw: &str) -> PathBuf {
+    let trimmed = raw.trim();
+    let no_quotes = trimmed
+        .strip_prefix('"')
+        .and_then(|s| s.strip_suffix('"'))
+        .unwrap_or(trimmed);
+    PathBuf::from(no_quotes)
 }
 
 fn is_file_exist(path: &str) -> bool {
