@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 
 fin_converter_lib = { git = "https://github.com/jekispank98/fin_converter_lib.git" }
+clap = { version = "4", features = ["derive"] }

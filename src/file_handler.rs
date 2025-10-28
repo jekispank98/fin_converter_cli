@@ -5,9 +5,10 @@ use fin_converter_lib::models::financial_record::FinancialRecord;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::BufReader;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use clap::Parser as ClapParser;
 
-pub fn handle_file(path: String) -> Result<Vec<FinancialRecord>, ParserError> {
+pub fn handle_file(path: &Path) -> Result<Vec<FinancialRecord>, ParserError> {
     let file = Path::new(&path);
     let extension = file.extension();
 
@@ -17,12 +18,12 @@ pub fn handle_file(path: String) -> Result<Vec<FinancialRecord>, ParserError> {
             println!("Extension: {}", ext.to_str().unwrap());
             match ext.to_str().unwrap_or("").trim() {
                 "csv" => {
-                    let buf = read_file_to_buffer(&path)?;
+                    let buf = read_file_to_buffer(path)?;
                     let mut csv_parser = Csv;
                     csv_parser.parse(buf)
                 }
                 "xlsx" => {
-                    let buf = read_file_to_buffer(&path)?;
+                    let buf = read_file_to_buffer(path)?;
                     let mut csv_parser = Csv;
                     csv_parser.parse(buf)
                 }
@@ -35,13 +36,17 @@ pub fn handle_file(path: String) -> Result<Vec<FinancialRecord>, ParserError> {
     }
 }
 
-fn read_file_to_buffer(path: &str) -> Result<BufReader<File>, ParserError> {
-    let file = match File::open(path) {
-        Ok(f) => f,
-        Err(e) => return Err(ParserError::Format(format!("Could not read file: {}", e))),
-    };
-
+fn read_file_to_buffer(path: &Path) -> Result<BufReader<File>, ParserError> {
+    eprintln!("Reading file: {:?}", path);
+    let file = File::open(path).map_err(ParserError::Io)?;
     Ok(BufReader::new(file))
 }
 
 fn parse_csv() {}
+
+#[derive(ClapParser, Debug)]
+#[command(name = "fin-cli", version, about = "Financial formats converter")]
+struct Args {
+    #[arg(short = 'i', long = "input", value_name = "FILE")]
+    input: PathBuf,
+}
