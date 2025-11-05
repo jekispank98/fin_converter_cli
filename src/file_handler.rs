@@ -1,12 +1,11 @@
 use fin_converter_lib::error::ParserError;
 use fin_converter_lib::handler::Parser;
-use fin_converter_lib::models::csv::Csv;
 use fin_converter_lib::models::financial_record::FinancialRecord;
-use std::ffi::OsStr;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
 use clap::Parser as ClapParser;
+use fin_converter_lib::CsvParser;
 
 pub fn handle_file(path: &Path) -> Result<Vec<FinancialRecord>, ParserError> {
     let file = Path::new(&path);
@@ -19,12 +18,12 @@ pub fn handle_file(path: &Path) -> Result<Vec<FinancialRecord>, ParserError> {
             match ext.to_str().unwrap_or("").trim() {
                 "csv" => {
                     let buf = read_file_to_buffer(path)?;
-                    let mut csv_parser = Csv;
+                    let mut csv_parser = CsvParser;
                     csv_parser.parse(buf)
                 }
                 "xlsx" => {
                     let buf = read_file_to_buffer(path)?;
-                    let mut csv_parser = Csv;
+                    let mut csv_parser = CsvParser;
                     csv_parser.parse(buf)
                 }
 
