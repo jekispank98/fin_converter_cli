@@ -1,11 +1,13 @@
 use fin_converter_lib::error::ParserError;
 use fin_converter_lib::handler::Parser;
+use fin_converter_lib::models::csv::CsvParser;
 use fin_converter_lib::models::financial_record::FinancialRecord;
+use std::ffi::OsStr;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
-use clap::Parser as ClapParser;
-use fin_converter_lib::CsvParser;
+use fin_converter_lib::models::bin::BinParser;
+use fin_converter_lib::models::text::TxtParser;
 
 pub fn handle_file(path: &Path) -> Result<Vec<FinancialRecord>, ParserError> {
     let file = Path::new(&path);
@@ -21,10 +23,15 @@ pub fn handle_file(path: &Path) -> Result<Vec<FinancialRecord>, ParserError> {
                     let mut csv_parser = CsvParser;
                     csv_parser.parse(buf)
                 }
-                "xlsx" => {
+                "txt" => {
                     let buf = read_file_to_buffer(path)?;
-                    let mut csv_parser = CsvParser;
-                    csv_parser.parse(buf)
+                    let mut txt_parser = TxtParser;
+                    txt_parser.parse(buf)
+                }
+                "bin" => {
+                    let buf = read_file_to_buffer(path)?;
+                    let mut bin_parser = BinParser;
+                    bin_parser.parse(buf)
                 }
 
                 _ => Err(ParserError::Format(
@@ -42,10 +49,10 @@ fn read_file_to_buffer(path: &Path) -> Result<BufReader<File>, ParserError> {
 }
 
 fn parse_csv() {}
-
+/*
 #[derive(ClapParser, Debug)]
 #[command(name = "fin-cli", version, about = "Financial formats converter")]
 struct Args {
     #[arg(short = 'i', long = "input", value_name = "FILE")]
     input: PathBuf,
-}
+}*/

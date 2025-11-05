@@ -11,10 +11,11 @@ fn main() {
         Ok(_) => {
             let trimmed_input = input.trim();
             let is_file_exist = is_file_exist(trimmed_input);
-            if is_file_exist { 
+            if is_file_exist {
                 println!("File {} exists", input);
                 let path = normalize_path(&input);
-                file_handler::handle_file(&path).expect("TODO: panic message");
+                let hm = file_handler::handle_file(&path).expect("TODO: panic message");
+                println!("{:?}", hm.first());
             }
             else { println!("File doesn't exist") }
         }
