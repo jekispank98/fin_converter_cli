@@ -1,13 +1,12 @@
 use fin_converter_lib::error::ParserError;
 use fin_converter_lib::handler::Parser;
-use fin_converter_lib::models::csv::CsvParser;
+use fin_converter_lib::models::bin::Bin;
+use fin_converter_lib::models::csv::Csv;
 use fin_converter_lib::models::financial_record::FinancialRecord;
-use std::ffi::OsStr;
+use fin_converter_lib::models::text::Txt;
 use std::fs::File;
 use std::io::BufReader;
-use std::path::{Path, PathBuf};
-use fin_converter_lib::models::bin::BinParser;
-use fin_converter_lib::models::text::TxtParser;
+use std::path::Path;
 
 pub fn handle_file(path: &Path) -> Result<Vec<FinancialRecord>, ParserError> {
     let file = Path::new(&path);
@@ -20,17 +19,17 @@ pub fn handle_file(path: &Path) -> Result<Vec<FinancialRecord>, ParserError> {
             match ext.to_str().unwrap_or("").trim() {
                 "csv" => {
                     let buf = read_file_to_buffer(path)?;
-                    let mut csv_parser = CsvParser;
+                    let mut csv_parser = Csv;
                     csv_parser.parse(buf)
                 }
                 "txt" => {
                     let buf = read_file_to_buffer(path)?;
-                    let mut txt_parser = TxtParser;
+                    let mut txt_parser = Txt;
                     txt_parser.parse(buf)
                 }
                 "bin" => {
                     let buf = read_file_to_buffer(path)?;
-                    let mut bin_parser = BinParser;
+                    let mut bin_parser = Bin;
                     bin_parser.parse(buf)
                 }
 

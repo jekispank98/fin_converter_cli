@@ -1,12 +1,16 @@
 mod file_handler;
+mod args;
 
+use clap::Parser;
 use std::io;
 use std::path::{Path, PathBuf};
+use crate::args::Args;
 
 fn main() {
+    let args = Args::parse();
     let mut input = String::new();
-    println!("Hello, let's get it started");
-    println!("Enter the file path");
+    println!("Args: {:?}", args);
+    io::stdin().read_line(&mut input).unwrap();
     match io::stdin().read_line(&mut input) {
         Ok(_) => {
             let trimmed_input = input.trim();
