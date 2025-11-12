@@ -7,36 +7,6 @@ use std::path::{Path, PathBuf};
 use crate::args::Args;
 
 fn main() {
-    let args = Args::parse();
-    let mut input = String::new();
-    println!("Args: {:?}", args);
-    io::stdin().read_line(&mut input).unwrap();
-    match io::stdin().read_line(&mut input) {
-        Ok(_) => {
-            let trimmed_input = input.trim();
-            let is_file_exist = is_file_exist(trimmed_input);
-            if is_file_exist {
-                println!("File {} exists", input);
-                let path = normalize_path(&input);
-                let hm = file_handler::handle_file(&path).expect("TODO: panic message");
-                println!("{:?}", hm.first());
-            }
-            else { println!("File doesn't exist") }
-        }
-        Err(error) => {
-            println!("Uncorrected path: {}", error)
-        }
-    }
-}
-fn normalize_path(raw: &str) -> PathBuf {
-    let trimmed = raw.trim();
-    let no_quotes = trimmed
-        .strip_prefix('"')
-        .and_then(|s| s.strip_suffix('"'))
-        .unwrap_or(trimmed);
-    PathBuf::from(no_quotes)
-}
-
-fn is_file_exist(path: &str) -> bool {
-    Path::new(path).exists()
+let args = Args::parse();
+resolve_action(args);    
 }
