@@ -1,12 +1,11 @@
-mod file_handler;
+mod action_resolver;
 mod args;
 
-use clap::Parser;
-use std::io;
-use std::path::{Path, PathBuf};
+use crate::action_resolver::resolve_action;
 use crate::args::Args;
+use clap::Parser;
 
 fn main() {
-let args = Args::parse();
-resolve_action(args);    
+    let args = Args::parse();
+    resolve_action(args);
 }

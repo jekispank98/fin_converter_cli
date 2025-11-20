@@ -3,18 +3,18 @@ use clap::{Parser, ValueEnum};
 #[command(version, about, long_about = None)]
 pub struct Args {
     #[arg(short, long)]
-    path: String,
+    pub path: String,
 
     #[arg(short, long, default_value = "read")]
-    action: Action,
+    pub action: Action,
 
     #[arg(short, long, default_value = "csv")]
-    to_format: Format
+    pub to_format: Format
 }
 
 #[derive(Debug, Clone, ValueEnum)]
 #[clap(rename_all = "lower")]
-enum Format {
+pub enum Format {
     TXT,
     BIN,
     CSV
@@ -22,7 +22,7 @@ enum Format {
 
 #[derive(Debug, Clone, ValueEnum)]
 #[clap(rename_all = "lower")]
-enum Action {
+pub enum Action {
     READ,
     CONVERT
 }
