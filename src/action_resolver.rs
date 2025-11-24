@@ -12,7 +12,8 @@ pub fn resolve_action(args: Args) {
     let path = normalize_path(&args.path);
     let to_format = args.to_format;
 
-    if !is_file_exist(&path) {
+    eprintln!("path '{:?}' ", path);
+    if !is_file_exist(&PathBuf::from(&args.path)) {
         eprintln!("Error: File '{}' does not exist", path.display());
         return;
     }
@@ -24,12 +25,12 @@ pub fn resolve_action(args: Args) {
     match args.action {
         Action::READ => {
             if let Err(e) = read_action(&path) {
-                eprintln!("Error during read action: {}", e);
+                eprintln!("Error during read action: {:?}", e);
             }
         }
         Action::CONVERT => {
             if let Err(e) = convert_action(&path, &to_format) {
-                eprintln!("Error during convert action: {}", e);
+                eprintln!("Error during convert action: {:?}", e);
             }
         }
     }
@@ -45,10 +46,19 @@ fn normalize_path(raw: &str) -> PathBuf {
 }
 
 fn is_file_exist(path: &PathBuf) -> bool {
-    Path::new(path).exists()
+    // Выводим путь в читаемом виде
+    println!("Проверяем путь: {}", path.display());
+
+    // Проверяем, что файл существует и что это именно файл
+    let exists = path.exists();
+    let is_file = path.is_file();
+
+    println!("exists: {}, is_file: {}", exists, is_file);
+
+    exists && is_file
 }
 
-fn convert_action(path: &Path, target_format: &Format) -> Result<(), Box<dyn std::error::Error>> {
+fn convert_action(path: &Path, target_format: &Format) -> Result<(), ParserError> {
     println!(
         "Performing CONVERT action on: {} to {:?}",
         path.display(),
@@ -65,7 +75,7 @@ fn convert_action(path: &Path, target_format: &Format) -> Result<(), Box<dyn std
     Ok(())
 }
 
-fn read_action(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+fn read_action(path: &Path) -> Result<(), ParserError> {
     let extension = path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
     let buf = read_file_to_buffer(path)?;
@@ -83,7 +93,7 @@ fn read_action(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
             let mut bin_parser = Bin;
             bin_parser.parse(buf)?;
         }
-        "" => return Err(ParserError::Format("нет расширения".into()).into()),
+        "" => return Err(ParserError::Format("нет расширения".into())),
         _ => return Err(ParserError::Format("неподдерживаемое расширение".into()).into()),
     }
     Ok(())
