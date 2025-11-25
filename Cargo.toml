@@ -5,7 +5,5 @@ edition = "2024"
 
 [dependencies]
 
-fin_converter_lib = { path = "C:/Users/jekis/PROJECTS/RustProjects/fin_converter_lib" }
-#fin_converter_lib = { path = "/home/jekis/Projects/Rust/fin_converter_lib" }
-#fin_converter_lib = { git = "https://github.com/jekispank98/fin_converter_lib.git" }
+fin_converter_lib = { path = "fin_converter_lib" }
 clap = { version = "4", features = ["derive"] }
