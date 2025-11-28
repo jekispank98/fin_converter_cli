@@ -5,14 +5,14 @@ pub struct Args {
     #[arg(short, long)]
     pub path: String,
 
-    #[arg(short, long)]
+    #[arg(short = 'c', long, default_value = "")]
     pub path_to_compare: String,
 
     #[arg(short, long, default_value = "read")]
     pub action: Action,
 
     #[arg(short, long, default_value = "csv")]
-    pub to_format: Format
+    pub to_format: Format,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -20,7 +20,7 @@ pub struct Args {
 pub enum Format {
     TXT,
     BIN,
-    CSV
+    CSV,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -28,5 +28,5 @@ pub enum Format {
 pub enum Action {
     READ,
     CONVERT,
-    COMPARE
+    COMPARE,
 }

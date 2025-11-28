@@ -38,13 +38,21 @@ pub fn resolve_action(args: Args) {
             }
         }
         Action::COMPARE => {
-            let compared = compare_files(&path, &path_to_compare);
-            match compared {
-                Ok(list) => {
-                    list.iter().for_each(|record| print_one_record(record));
-                }
-                Err(e) => {
-                    eprintln!("Error during comparable action: {:?}", e);
+            if path_to_compare.as_path().as_os_str().is_empty() {
+                eprintln!("Undefined path! Check both paths and try again!")
+            } else {
+                let compared = compare_files(&path, &path_to_compare);
+                match compared {
+                    Ok(list) => {
+                        if list.is_empty() {
+                            println!("Files are identical!")
+                        } else {
+                            list.iter().for_each(|record| print_one_record(record));
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("Error during comparable action: {:?}", e);
+                    }
                 }
             }
         }
