@@ -5,6 +5,9 @@ pub struct Args {
     #[arg(short, long)]
     pub path: String,
 
+    #[arg(short, long)]
+    pub path_to_compare: String,
+
     #[arg(short, long, default_value = "read")]
     pub action: Action,
 
@@ -24,5 +27,6 @@ pub enum Format {
 #[clap(rename_all = "lower")]
 pub enum Action {
     READ,
-    CONVERT
+    CONVERT,
+    COMPARE
 }
