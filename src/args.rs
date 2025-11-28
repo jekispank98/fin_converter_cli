@@ -1,4 +1,6 @@
-use clap::{Parser, ValueEnum};
+use clap::{Parser , ValueEnum};
+use strum::{Display, EnumString};
+
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Args {
@@ -15,7 +17,7 @@ pub struct Args {
     pub to_format: Format,
 }
 
-#[derive(Debug, Clone, ValueEnum)]
+#[derive(Debug, Clone, ValueEnum, Display, EnumString)]
 #[clap(rename_all = "lower")]
 pub enum Format {
     TXT,

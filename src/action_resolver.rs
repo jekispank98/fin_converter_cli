@@ -86,12 +86,40 @@ fn convert_action(path: &Path, target_format: &Format) -> Result<(), ParserError
         target_format
     );
 
-    match target_format {
-        Format::TXT => convert_to_txt(path)?,
-        Format::BIN => convert_to_bin(path)?,
-        Format::CSV => convert_to_csv(path)?,
-    }
+    let extension = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+    let output_file_extension = target_format.to_string().to_lowercase();
+    let buf = read_file_to_buffer(path)?;
+    let out_path = path.with_extension(output_file_extension);
+    let out_file = File::create(&out_path).map_err(ParserError::Io)?;
+    let writer = BufWriter::new(out_file);
+    let parse_result: Result<Format, _> = extension.parse();
+    let _format = match parse_result {
+        Ok(format) => {
+            let records = match format {
+                Format::TXT => Txt::parse(&mut Txt, buf),
+                Format::BIN => Bin::parse(&mut Bin, buf),
+                Format::CSV => Csv::parse(&mut Csv, buf),
+            };
 
+            match records {
+                Ok(r) => {
+                    let _serializer = match target_format {
+                        Format::TXT => Txt::serialize(&Txt, &r, writer),
+                        Format::BIN => Bin::serialize(&Bin, &r, writer),
+                        Format::CSV => Csv::serialize(&Csv, &r, writer),
+                    };
+                }
+                Err(e) => {
+                    eprintln!("Error during conversion action: {:?}", e);
+                }
+            }
+        }
+        Err(_) => {
+            return Err(ParserError::Format(String::from(
+                "Unexpected format extension!",
+            )));
+        }
+    };
     println!("Conversion to {:?} completed successfully", target_format);
     Ok(())
 }
@@ -114,8 +142,8 @@ fn read_action(path: &Path) -> Result<Vec<FinancialRecord>, ParserError> {
             let mut bin_parser = Bin;
             Ok(bin_parser.parse(buf)?)
         }
-        "" => Err(ParserError::Format("нет расширения".into())),
-        _ => Err(ParserError::Format("неподдерживаемое расширение".into()).into()),
+        "" => Err(ParserError::Format("No extension".into())),
+        _ => Err(ParserError::Format("Unsupported extension".into()).into()),
     }
 }
 
@@ -147,108 +175,6 @@ fn compare_files(
         .collect();
     Ok(result)
 }
-
-fn convert_to_txt(path: &Path) -> Result<(), ParserError> {
-    let extension = path.extension().and_then(|e| e.to_str()).unwrap_or("");
-
-    let buf = read_file_to_buffer(path)?;
-
-    let out_path = path.with_extension("txt");
-    let out_file = File::create(&out_path).map_err(ParserError::Io)?;
-    let writer = BufWriter::new(out_file);
-    match extension {
-        "txt" => {
-            println!("The file is TXT already!");
-            Ok(())
-        }
-        "csv" => {
-            let mut csv_parser = Csv;
-            let records = csv_parser.parse(buf)?;
-
-            let txt_serializer = Txt;
-            txt_serializer.serialize(&records, writer)
-        }
-        "bin" => {
-            let mut bin_parser = Bin;
-            let records = bin_parser.parse(buf)?;
-
-            let txt_serializer = Txt;
-            txt_serializer.serialize(&records, writer)
-        }
-        _ => {
-            println!("Unexpected file's format!");
-            Ok(())
-        }
-    }
-}
-
-fn convert_to_bin(path: &Path) -> Result<(), ParserError> {
-    let extension = path.extension().and_then(|e| e.to_str()).unwrap_or("");
-
-    let buf = read_file_to_buffer(path)?;
-
-    let out_path = path.with_extension("bin");
-    let out_file = File::create(&out_path).map_err(ParserError::Io)?;
-    let writer = BufWriter::new(out_file);
-    match extension {
-        "txt" => {
-            let mut txt_parser = Txt;
-            let records = txt_parser.parse(buf)?;
-
-            let bin_serializer = Bin;
-            bin_serializer.serialize(&records, writer)
-        }
-        "csv" => {
-            let mut csv_parser = Csv;
-            let records = csv_parser.parse(buf)?;
-
-            let bin_serializer = Bin;
-            bin_serializer.serialize(&records, writer)
-        }
-        "bin" => {
-            println!("The file is BIN already!");
-            Ok(())
-        }
-        _ => {
-            println!("Unexpected file's format!");
-            Ok(())
-        }
-    }
-}
-fn convert_to_csv(path: &Path) -> Result<(), ParserError> {
-    let extension = path.extension().and_then(|e| e.to_str()).unwrap_or("");
-
-    let buf = read_file_to_buffer(path)?;
-
-    let out_path = path.with_extension("csv");
-    let out_file = File::create(&out_path).map_err(ParserError::Io)?;
-    let writer = BufWriter::new(out_file);
-    match extension {
-        "txt" => {
-            let mut txt_parser = Txt;
-            let records = txt_parser.parse(buf)?;
-
-            let csv_serializer = Csv;
-            csv_serializer.serialize(&records, writer)
-        }
-        "csv" => {
-            println!("The file is BIN already!");
-            Ok(())
-        }
-        "bin" => {
-            let mut bin_parser = Bin;
-            let records = bin_parser.parse(buf)?;
-
-            let csv_serializer = Csv;
-            csv_serializer.serialize(&records, writer)
-        }
-        _ => {
-            println!("Unexpected file's format!");
-            Ok(())
-        }
-    }
-}
-
 fn read_file_to_buffer(path: &Path) -> Result<BufReader<File>, ParserError> {
     eprintln!("Reading file: {:?}", path);
     let file = File::open(path).map_err(ParserError::Io)?;

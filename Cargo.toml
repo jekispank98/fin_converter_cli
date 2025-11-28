@@ -7,3 +7,4 @@ edition = "2024"
 fin_converter_lib = { git = "https://github.com/jekispank98/fin_converter_lib.git" }
 clap = { version = "4", features = ["derive"] }
 chrono = "0.4"
+strum = { version = "0.27", features = ["derive"] }
